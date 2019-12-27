@@ -17,7 +17,7 @@ data = read.csv("bank_additional_full.csv")
 
 **Summary**
 
-In this project, I am predicting whether a customer would subscribe to a certain product. The way of communication between the Portuguese banking institution and customers is phone calls. Since it is a classification problem, I am using logistic regression and quadratic discriminant analysis here. The result suggests that...
+In this project, I am predicting whether a customer would subscribe to a certain product by a Portuguese banking institution. The way of communication between the institution and customers is phone calls. Since it is a classification problem, I am using logistic regression and quadratic discriminant analysis here. Both predictions are not ideally accurate. The result suggests that peole who have subcribed during previous campaigns are more likely to subcribe during this campaign and the probability of subscribing goes up with consumer price index and down against employment variation rate.
 
 
 **Data**
@@ -30,45 +30,70 @@ test <- data[!sample, ]
 plot(lm(y~duration, data=data))
 ```
 
-I am using the largest dataset, bank-additional-full with 41,188 observations and 20 independent variables (Moro, Cortez and Rita 2014). The final dataset I actually used contained only 4,653 observations because I eliminated the ones with unknown values and without outcomes from previous campaigns. (See discussion section for explanation.) The 20 independent variables provide information regarding bank clients, last contact of current campaign, other campaign attributes and social and economic context attributes. In this project, for out-of-class method, I will be taking a sample which is divided into 80% as training dataset and 20% as testing dataset.
+I started with the largest dataset, bank-additional-full with 41,188 observations and 20 independent variables (Moro, Cortez and Rita 2014). The final dataset I actually used containes only 4,653 observations because I eliminated observations with unknown values and without outcomes from previous campaigns. (See discussion section for explanation.) The 20 independent variables provide information regarding bank clients, last contact of current campaign, other campaign attributes and social and economic context attributes. For out-of-class method, I will be taking a sample divided into 80% as training dataset and 20% as testing dataset.
 
 
-Some independent varaible names are self-expanatory. The others that may cause confusions and are modified are expained as follows. "Marital" is recoded to be 1 for "married" and 0 for "single" and "divorced". "Default" shows whether the client has credit in default; "housing" tells whether the client  has housing loan and "loan" tells whether the client has personal loan. Contact shows whether the client was contacted by cellular phone or telephone last time. "Month""day_of_week" and "dur ation" are all information regarding last contact. "Campaign"" shows how many times the client has been contacted during the current campaign and "previous" shows the same information during the previous campaign. "Pdays" stands for the number of days since the client was last contacted and a value of 999 means the client was never contacted. "Poutcome" tells the result from the previous campaign. "$Y$" is the target term to subscribe. I will not be using any variables in social and economic context attributes to run regressions.
+Some independent varaible names are self-expanatory. The others that may cause confusions and are modified are expained as follows. "Marital" is recoded to be 1 for "married" and 0 for "single" and "divorced". "Default" shows whether the client has credit in default; "housing" shows whether the client  has housing loan and "loan" shows whether the client has personal loan. "Contact" shows whether the client was contacted by cellular phone or telephone last time. "Month","day_of_week" and "duration" are all information regarding last contact. "Campaign" shows how many times the client has been contacted during the current campaign and "previous" shows the same information during the previous campaign. "Pdays" stands for the number of days since the client was last contacted and a value of 999 means the client was never contacted. "Emp.var.rate" stands for "employment variation rate"; "cons.price.idx" stands for "consumer price index"; and "cons.conf.idx" stands for "consumer confidence index" (Moro, Cortez and Rita 2014). "Poutcome" tells the result from the previous campaign and is modified to be 1 for "success" and 0 for "failure". "$Y$" is the target term to subscribe.
 
 
-I plot the relationship between y and duration. The trend shows that the data have an obvious split. I believe it is because of the binary previous outcomes. I am wondering if it looks like the correct distribution.
+I plot the relationship between y and duration. The trend shows that the data have an obvious split. I suspect it is because of the outcome is binary. I am wondering if it looks like the correct distribution.
 
 
 **Methods**
 
-I decided early on that I will be using logistic regression and later realized that KNN was a better fit but did not have enough time to start all over again. For this project, I will continue with logistic regression and its intuitions, but I am aware that KNN would have given a better result.
+I decided early on that I will be using logistic regression and later realized that KNN regression would be a better fit but did not have enough time to start all over again. For this project, I will continue with logistic regression and its intuitions, but I am aware that KNN regression would have given a better result.
 
 ```{r}
-model = glm(y~marital+default+housing+loan+poutcome, data=data)
+model = glm(y~marital+default+housing+loan+poutcome+emp.var.rate+cons.price.idx+cons.conf.idx, data=data)
 print(summary(model))
+
+coefficients = as.matrix(coef(model))
+trainingData  = data[,c('marital','default','housing','loan','poutcome','emp.var.rate','cons.price.idx','cons.conf.idx')]
+trainingData  = cbind(1,trainingData)
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+Accuracy = mean(data$y==decisions)
+print(Accuracy)
 ```
 
-For the logistic regression, I take marital status, personal financial standing and previous outcome as independent variables to decide whether a person would subcribe. Marital status and previous outcome has a positive log-odds whereas having credit in default, housing loan or personal loan results in a negative log-odds. This suggests that people who are married and/or have previously subscribed are more likely to subscribe and people with credit in default, housing loan and/or personal loan are less likely to subcribe. Transferring the coeffients to represent the odds, I know that a one unit increase in marital status (married or not) results in a one time increase in the odds of subscribing; a one unit increase in previous outcome (subscribed or not) results in a 1.66 times increase in the odds of subscribing; a one unit increase in having credit in default (having it or not) results in a 0.86 time decrease in the odds of subscribing; having housing or personal loan does not really have any effect on people's decision of subscribing. However, coeffients of marital status, having credit in default, housing loan or personal loan sugguest that these factors are not statistically significant to our $y$. 
+For the logistic regression, I take marital status, personal financial standing, macroeconomy and previous outcome into consideration to decide whether a person would subscribe. Marital status, having housing loan, previous outcome, consumer price index and consumer confidence index have a positive log-odds whereas having credit in default, personal loan or the employment variation rate have a negative log-odds. This suggests that people who are married, have housing loan, have previously subscribed are more likely to subscribe and people are likely subscribe when the economy is doing good. On the other hand, when employment variation rate is high, when people have credit in default or personal loan, they are less likely to subcribe. I notice that %p%-values of marital status, having credit in default, housing loan or personal loan sugguest that these factors are not statistically significant to our $y$. Transferring the rest of the coeffients to represent the odds, I know that a one unit increase in previous outcome (subscribed or not) results in a 1.43 times increase in the odds of subscribing; a one unit increase in employment variation rate results in a 0.9 time decrease in the odds of subscribing; a one unit increase in consumer price index results in a 1.23 time increase in the odds of subscribing; consumer confidence index does not really have any effect on people's decision of subscribing.
+
+
+After examine the accuracy, the prediction does not predict very well with only 28% of accuracy. I expected it as I figured KNN regression would be a better method. It could also be that the independent variables are not the best choices. I will move on to quadratic discriminant analysis to see.
+
 
 ```{r}
+(qda.m1 <- qda(y ~ poutcome+cons.price.idx, data = train))
+(df <- tibble(cons.price.idx = rep(c(92, 95), 2), poutcome = c("1", "1", "0", "0")))
+(qda.pred1 <- predict(qda.m1, df)) #This code has some error message I don't quite understand.
+test.predicted.qda1 <- predict(qda.m1, newdata = test)
+qda.cm1 <- table(test$y, test.predicted.qda1$class)
+list(QDA_model1 = qda.cm1 %>% prop.table() %>% round(3))
 
+(qda.m2 <- qda(y ~ poutcome+emp.var.rate, data = train))
+(df <- tibble(emp.var.rate = rep(c(-3.5, 0), 2), poutcome = c("1", "1", "0", "0")))
+(qda.pred2 <- predict(qda.m2, df)) #Same comment as above
+test.predicted.qda2 <- predict(qda.m2, newdata = test)
+qda.cm2 <- table(test$y, test.predicted.qda2$class)
+list(QDA_model2 = qda.cm2 %>% prop.table() %>% round(3))
+# (Linear & Quadratic Discriminant Analysis[online]. Available at: $http://uc-r.github.io/discriminant_analysis#why$)
 ```
+
+In the quadratic discriminant analysis, when considering previous outcome and consumer price index, 72% of the observations in the training set do not subscribe and 28% do. Among all the people subscribe this time, 61% of them subscibed before. The average consumer price index does not differ very much. The posterior probabilities are very far from 50%, suggesting that there are not much ambiguity in the prediction. The prediction evalution shows that 64% of the predictions are true negatives and 16% are true positives. About an even split of 10% of the times, my quadratic discriminant analysis would predict the person did not subscribe when they did or they did when they actually did not. Similar result is achieved with previous outcome and employment variation rate. The errors are pretty big in my opinion, but they are better than that of the logistic regression. 
 
 
 **Result**
 
-The result suggests that ...
+The result suggests that people are likely to subscribe if they have subscribed before, when consumer price index is high or when employment variation rate is low. Both methods do not provide a very ideal prediction. Logistic regression comes out with a 28% accuracy, which probably indicates that it is not the best regression to apply in this situation. Quadratic discriminant analysis has an overall accuracy around 80%. Between these two methods, quadratic discriminant analysis would be better in predicting consumers' choice.
 
 
 **Discussion**
 
-In conclusion, the logistic regression predicts result ... The quadratic discriminant analysis predicts result ... 
-
-
 Although both regressions classify data, quadratic discriminant analysis works better with data drawn from a normal distribution and logistic regression deal with data drawn from a binomial distribution better. This can result in errors in the final comparisons. I was not able to figure out a way to find the distribution with many independent variables. Going forward, I would like to examine the distribution of the entire dataset and determine which regression (or another regression that is not included here) predicts the data better. I find the method of using package fitdistrplus() to decide data distribution (Delignette-Muller 2014). However, Rstudio somehow shows that this package is not found.
 
 
-Because the independent variables I chose are categorical and not continuous, the methods I chose only allowed me to use dummy independent variables in order to find the relationship between the dependent variable and them. It was a lot of work in the first place, to convert all the data and eliminate the unknowns. Second, it made predictions less accurate because of the eliminated values and the missing non-binary variables. For example, I had to count single and divorced population as one which could lead to a very different result. I figured out that I should have used KNN instead of logistic regression too late to switch. I had to eliminate so many data to be able to continue with the methods I already decided on, which shrank the dataset significantly and I am not as confident in the predictions now just because of the smaller size. In the future, stay healthy so I can think clearly and leave enough time so I can fix problems.
+I figured out that I should have used KNN regression instead of logistic regression too late to switch. The methods I chose did not allow me to to do much with catrgorical independent variables. It was a lot of work in the first place to convert categorical data to dummies and eliminate the unknowns. Second, it made predictions less accurate because of the eliminated values and the missing non-binary variables. For example, I had to count single and divorced population as one which could lead to a very different result. I had to eliminate so many data to be able to continue with the methods I already decided on, which shrank the dataset significantly and I am not as confident in the predictions now just because of the smaller size. In the future, stay healthy so I can think clearly and leave enough time so I can fix problems.
 
 
 **References**
