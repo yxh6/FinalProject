@@ -1,0 +1,72 @@
+---
+title: "Predictions for Bank Marketing"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(MASS)
+data = read.csv("bank_additional_full.csv")
+```
+
+**Summary**
+
+In this project, I am predicting whether a customer would subscribe to a certain product. The way of communication between the Portuguese banking institution and customers is phone calls. Since it is a classification problem, I am using logistic regression and quadratic discriminant analysis (QDA) here. The result suggests that...
+
+
+**Data**
+
+```{r}
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(data), replace = T, prob = c(0.8,0.2))
+train <- data[sample, ]
+test <- data[!sample, ]
+plot(lm(y~duration, data=data))
+```
+
+I am using the largest dataset, bank-additional-full with 41,188 observations and 20 independent variables (Moro, Cortez and Rita 2014). The final dataset I actually used contained only 4,653 observations because I eliminated the ones with unknown values and without outcomes from previous campaigns. (See discussion section for explanation.) The 20 independent variables provide information regarding bank clients, last contact of current campaign, other campaign attributes and social and economic context attributes. In this project, for out-of-class method, I will be taking a sample which is divided into 80% as training dataset and 20% as testing dataset.
+
+
+Some independent varaible names are self-expanatory. The others that may cause confusions and are modified are expained as follows. "Marital" is recoded to be 1 for "married" and 0 for "single" and "divorced". "Default" shows whether the client has credit in default; "housing" tells whether the client  has housing loan and "loan" tells whether the client has personal loan. Contact shows whether the client was contacted by cellular phone or telephone last time. "Month""day_of_week" and "dur ation" are all information regarding last contact. "Campaign"" shows how many times the client has been contacted during the current campaign and "previous" shows the same information during the previous campaign. "Pdays" stands for the number of days since the client was last contacted and a value of 999 means the client was never contacted. "Poutcome" tells the result from the previous campaign. "Y" is the target term to subscribe. I will not be using any variables in social and economic context attributes to run regressions.
+
+
+I plot the relationship between y and duration. The trend shows that the data have an obvious split. I believe it is because of the binary previous outcomes. I am wondering if it looks like the correct distribution.
+
+
+**Methods**
+
+```{r}
+model = glm(y~marital+default+housing+loan+poutcome, data=data)
+print(summary(model))
+```
+
+
+**Result**
+
+The result suggests that ...
+
+
+**Discussion**
+
+In conclusion, the logistic regression predicts result ... The quadratic discriminant analysis predicts result ... 
+
+
+Although both regressions classify data, the logistic regression assumes that the data are drawn from a binomial distribution while the quadratic discriminant analysis assumes that the data are drawn from a normal distribution. This can result in errors in the final comparisons. I was not able to figure out a way to find the distribution with many independent variables. Going forward, I would like to examine the distribution of the entire dataset and determine which regression (or another regression that is not included here) predicts the data better. I find the method of using package fitdistrplus() to decide data distribution (Delignette-Muller 2014). However, Rstudio somehow shows that this package is not found.
+
+
+Because the independent variables I chose are categorical and not continuous, the methods I chose only allowed me to use dummy independent variables in order to find the relationship between the dependent variable and them. It was a lot of work in the first place, to convert all the data and eliminate the unknowns. Second, it made predictions less accurate because of the eliminated values and the missing non-binary variables. For example, I had to count single and divorced population as one which could lead to a very different result. I did not have enough time to find another approach after I figured I had to eliminate so many data to be able to continue with the methods I already decided on, which shrank the dataset significantly and I am not as confident in the predictions now just because of the smaller size. In the future, I want to find a method that could deal with non-binary independent variables. Also, stay healthy so I can think clearly and leave enough time so I can fix problems.
+
+
+**References**
+
+M.L. Delignette-Muller and C. Dutang. (2014) "fitdistrplus: An R Package for Fitting Distributions," Journal of Statistical Software.
+
+Linear & Quadratic Discriminant Analysis [online]. Available at: $http://uc-r.github.io/discriminant_analysis#why$
+
+S. Moro, P. Cortez and P. Rita. (2014), "A Data-Driven Approach to Predict the Success of Bank Telemarketing," Decision Support Systems, Elsevier, 62:22-31.
