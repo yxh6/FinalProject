@@ -17,7 +17,7 @@ data = read.csv("bank_additional_full.csv")
 
 **Summary**
 
-In this project, I am predicting whether a customer would subscribe to a certain product. The way of communication between the Portuguese banking institution and customers is phone calls. Since it is a classification problem, I am using logistic regression and quadratic discriminant analysis (QDA) here. The result suggests that...
+In this project, I am predicting whether a customer would subscribe to a certain product. The way of communication between the Portuguese banking institution and customers is phone calls. Since it is a classification problem, I am using logistic regression and quadratic discriminant analysis here. The result suggests that...
 
 
 **Data**
@@ -33,7 +33,7 @@ plot(lm(y~duration, data=data))
 I am using the largest dataset, bank-additional-full with 41,188 observations and 20 independent variables (Moro, Cortez and Rita 2014). The final dataset I actually used contained only 4,653 observations because I eliminated the ones with unknown values and without outcomes from previous campaigns. (See discussion section for explanation.) The 20 independent variables provide information regarding bank clients, last contact of current campaign, other campaign attributes and social and economic context attributes. In this project, for out-of-class method, I will be taking a sample which is divided into 80% as training dataset and 20% as testing dataset.
 
 
-Some independent varaible names are self-expanatory. The others that may cause confusions and are modified are expained as follows. "Marital" is recoded to be 1 for "married" and 0 for "single" and "divorced". "Default" shows whether the client has credit in default; "housing" tells whether the client  has housing loan and "loan" tells whether the client has personal loan. Contact shows whether the client was contacted by cellular phone or telephone last time. "Month""day_of_week" and "dur ation" are all information regarding last contact. "Campaign"" shows how many times the client has been contacted during the current campaign and "previous" shows the same information during the previous campaign. "Pdays" stands for the number of days since the client was last contacted and a value of 999 means the client was never contacted. "Poutcome" tells the result from the previous campaign. "Y" is the target term to subscribe. I will not be using any variables in social and economic context attributes to run regressions.
+Some independent varaible names are self-expanatory. The others that may cause confusions and are modified are expained as follows. "Marital" is recoded to be 1 for "married" and 0 for "single" and "divorced". "Default" shows whether the client has credit in default; "housing" tells whether the client  has housing loan and "loan" tells whether the client has personal loan. Contact shows whether the client was contacted by cellular phone or telephone last time. "Month""day_of_week" and "dur ation" are all information regarding last contact. "Campaign"" shows how many times the client has been contacted during the current campaign and "previous" shows the same information during the previous campaign. "Pdays" stands for the number of days since the client was last contacted and a value of 999 means the client was never contacted. "Poutcome" tells the result from the previous campaign. "$Y$" is the target term to subscribe. I will not be using any variables in social and economic context attributes to run regressions.
 
 
 I plot the relationship between y and duration. The trend shows that the data have an obvious split. I believe it is because of the binary previous outcomes. I am wondering if it looks like the correct distribution.
@@ -41,9 +41,17 @@ I plot the relationship between y and duration. The trend shows that the data ha
 
 **Methods**
 
+I decided early on that I will be using logistic regression and later realized that KNN was a better fit but did not have enough time to start all over again. For this project, I will continue with logistic regression and its intuitions, but I am aware that KNN would have given a better result.
+
 ```{r}
 model = glm(y~marital+default+housing+loan+poutcome, data=data)
 print(summary(model))
+```
+
+For the logistic regression, I take marital status, personal financial standing and previous outcome as independent variables to decide whether a person would subcribe. Marital status and previous outcome has a positive log-odds whereas having credit in default, housing loan or personal loan results in a negative log-odds. This suggests that people who are married and/or have previously subscribed are more likely to subscribe and people with credit in default, housing loan and/or personal loan are less likely to subcribe. Transferring the coeffients to represent the odds, I know that a one unit increase in marital status (married or not) results in a one time increase in the odds of subscribing; a one unit increase in previous outcome (subscribed or not) results in a 1.66 times increase in the odds of subscribing; a one unit increase in having credit in default (having it or not) results in a 0.86 time decrease in the odds of subscribing; having housing or personal loan does not really have any effect on people's decision of subscribing. However, coeffients of marital status, having credit in default, housing loan or personal loan sugguest that these factors are not statistically significant to our $y$. 
+
+```{r}
+
 ```
 
 
@@ -57,10 +65,10 @@ The result suggests that ...
 In conclusion, the logistic regression predicts result ... The quadratic discriminant analysis predicts result ... 
 
 
-Although both regressions classify data, the logistic regression assumes that the data are drawn from a binomial distribution while the quadratic discriminant analysis assumes that the data are drawn from a normal distribution. This can result in errors in the final comparisons. I was not able to figure out a way to find the distribution with many independent variables. Going forward, I would like to examine the distribution of the entire dataset and determine which regression (or another regression that is not included here) predicts the data better. I find the method of using package fitdistrplus() to decide data distribution (Delignette-Muller 2014). However, Rstudio somehow shows that this package is not found.
+Although both regressions classify data, quadratic discriminant analysis works better with data drawn from a normal distribution and logistic regression deal with data drawn from a binomial distribution better. This can result in errors in the final comparisons. I was not able to figure out a way to find the distribution with many independent variables. Going forward, I would like to examine the distribution of the entire dataset and determine which regression (or another regression that is not included here) predicts the data better. I find the method of using package fitdistrplus() to decide data distribution (Delignette-Muller 2014). However, Rstudio somehow shows that this package is not found.
 
 
-Because the independent variables I chose are categorical and not continuous, the methods I chose only allowed me to use dummy independent variables in order to find the relationship between the dependent variable and them. It was a lot of work in the first place, to convert all the data and eliminate the unknowns. Second, it made predictions less accurate because of the eliminated values and the missing non-binary variables. For example, I had to count single and divorced population as one which could lead to a very different result. I did not have enough time to find another approach after I figured I had to eliminate so many data to be able to continue with the methods I already decided on, which shrank the dataset significantly and I am not as confident in the predictions now just because of the smaller size. In the future, I want to find a method that could deal with non-binary independent variables. Also, stay healthy so I can think clearly and leave enough time so I can fix problems.
+Because the independent variables I chose are categorical and not continuous, the methods I chose only allowed me to use dummy independent variables in order to find the relationship between the dependent variable and them. It was a lot of work in the first place, to convert all the data and eliminate the unknowns. Second, it made predictions less accurate because of the eliminated values and the missing non-binary variables. For example, I had to count single and divorced population as one which could lead to a very different result. I figured out that I should have used KNN instead of logistic regression too late to switch. I had to eliminate so many data to be able to continue with the methods I already decided on, which shrank the dataset significantly and I am not as confident in the predictions now just because of the smaller size. In the future, stay healthy so I can think clearly and leave enough time so I can fix problems.
 
 
 **References**
