@@ -77,7 +77,7 @@ list(QDA_model1 = qda.cm1 %>% prop.table() %>% round(3))
 test.predicted.qda2 <- predict(qda.m2, newdata = test)
 qda.cm2 <- table(test$y, test.predicted.qda2$class)
 list(QDA_model2 = qda.cm2 %>% prop.table() %>% round(3))
-# (Linear & Quadratic Discriminant Analysis[online]. Available at: $http://uc-r.github.io/discriminant_analysis#why$)
+# (Linear & Quadratic Discriminant Analysis[online]. Available at: $http://uc-r.github.io/discriminant_analysisHASHwhy$)
 ```
 
 In the quadratic discriminant analysis, when considering previous outcome and consumer price index, 72% of the observations in the training set do not subscribe and 28% do. Among all the people subscribe this time, 61% of them subscibed before. The average consumer price index does not differ very much. The posterior probabilities are very far from 50%, suggesting that there are not much ambiguity in the prediction. The prediction evalution shows that 64% of the predictions are true negatives and 16% are true positives. About an even split of 10% of the times, my quadratic discriminant analysis would predict the person did not subscribe when they did or they did when they actually did not. Similar result is achieved with previous outcome and employment variation rate. The errors are pretty big in my opinion, but they are better than that of the logistic regression. 
@@ -100,6 +100,6 @@ I figured out that I should have used KNN regression instead of logistic regress
 
 M.L. Delignette-Muller and C. Dutang. (2014) "fitdistrplus: An R Package for Fitting Distributions," Journal of Statistical Software.
 
-Linear & Quadratic Discriminant Analysis [online]. Available at: $http://uc-r.github.io/discriminant_analysis#why$
+Linear & Quadratic Discriminant Analysis [online]. Available at: $http://uc-r.github.io/discriminant_analysisHASHwhy$
 
 S. Moro, P. Cortez and P. Rita. (2014), "A Data-Driven Approach to Predict the Success of Bank Telemarketing," Decision Support Systems, Elsevier, 62:22-31.
